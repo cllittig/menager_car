@@ -1,0 +1,152 @@
+!define ABSTRACT_COLOR #E3F2FD
+!define ENTITY_COLOR #F3E5F5
+!define TRANSACTION_COLOR #E8F5E9
+!define AUDIT_COLOR #FFF3E0
+
+skinparam classBackgroundColor<<User>> #C3E9FF
+skinparam classBackgroundColor<<Veiculo>> #E0C3FF
+skinparam classBackgroundColor<<Transacao>> #C3FFE0
+skinparam classBackgroundColor<<Auditoria>> #FFE0C3
+
+skinparam classBorderColor #1976D2
+skinparam classArrowColor #1976D2
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontSize 12
+skinparam defaultFontFamily Courier
+skinparam roundcorner 10
+
+title <b>Sistema de Gestão Veicular</b>\n<size:10>Diagrama de Classes - Principais Entidades</size>
+
+package "👤 Gestão de Usuários" #E3F2FD {
+  class User <<User>> {
+    - id: UUID
+    - email: String ✓ unique
+    - password: String (hash)
+    - name: String
+    - role: {ADMIN, USER}
+    - isActive: Boolean
+    --
+    + authenticate(): Boolean
+    + updatePassword(): void
+    + logActivity(): void
+  }
+
+  class AuditLog <<Auditoria>> {
+    - id: UUID
+    - action: String
+    - entity: String
+    - entityId: String
+    - details: JSON
+    - timestamp: DateTime
+    --
+    + recordAction(): void
+    + getTrail(): AuditLog[]
+  }
+}
+
+package "🚗 Gestão de Veículos" #F3E5F5 {
+  class Vehicle <<Veiculo>> {
+    - id: UUID
+    - brand: String
+    - model: String
+    - year: Integer
+    - licensePlate: String ✓ unique
+    - chassis: String ✓ unique
+    - mileage: Float
+    - status: {AVAILABLE, SOLD, MAINTENANCE}
+    - purchasePrice: Float
+    - salePrice: Float
+    --
+    + updateStatus(): void
+    + getMaintenance(): List
+    + updateMileage(): void
+  }
+
+  class Maintenance <<Veiculo>> {
+    - id: UUID
+    - description: String
+    - cost: Float
+    - startDate: DateTime
+    - endDate: DateTime
+    - status: {PENDING, IN_PROGRESS, COMPLETED}
+    - mechanic: String
+    --
+    + startMaintenance(): void
+    + completeMaintenance(): void
+    + getTotalCost(): Float
+  }
+
+  class ServiceOrder <<Veiculo>> {
+    - id: UUID
+    - description: String
+    - cost: Float
+    - parts: String[]
+    --
+    + addPart(): void
+    + calculateTotal(): Float
+  }
+}
+
+package "💰 Gestão de Transações" #E8F5E9 {
+  class Client <<Transacao>> {
+    - id: UUID
+    - name: String
+    - email: String ✓ unique
+    - phone: String
+    - cpf: String ✓ unique
+    - cnh: String ✓ unique
+    - address: String
+    - isActive: Boolean
+    --
+    + validateDocuments(): Boolean
+    + getTransactionHistory(): List
+  }
+
+  class Transaction <<Transacao>> {
+    - id: UUID
+    - type: {SALE, PURCHASE}
+    - amount: Float
+    - status: {PENDING, PARTIAL, PAID, OVERDUE}
+    - isActive: Boolean
+    - createdAt: DateTime
+    --
+    + processPayment(): Boolean
+    + generateContract(): Contract
+    + getInstallments(): List
+  }
+
+  class Installment <<Transacao>> {
+    - id: UUID
+    - number: Integer
+    - amount: Float
+    - dueDate: DateTime
+    - status: {PENDING, PARTIAL, PAID, OVERDUE}
+    - paidAt: DateTime
+    --
+    + recordPayment(): void
+    + isOverdue(): Boolean
+    + getInterest(): Float
+  }
+
+  class Contract <<Transacao>> {
+    - id: UUID
+    - fileName: String
+    - mimeType: String
+    - fileSize: Int
+    - fileHash: String
+    - uploadDate: DateTime
+    --
+    + generateDocument(): void
+    + validateIntegrity(): Boolean
+  }
+}
+
+User "1" --o "0..*" AuditLog : registra
+Vehicle "1" --* "0..*" Maintenance : sofre
+Vehicle "1" --* "0..*" Transaction : envolve
+Client "1" --* "0..*" Transaction : participa
+Transaction "1" --* "0..*" Installment : divide
+Transaction "1" --* "1" Contract : gera
+Maintenance "1" --* "0..*" ServiceOrder : contém
+
+@enduml

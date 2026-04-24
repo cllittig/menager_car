@@ -1,0 +1,155 @@
+@startuml SistemaVeicular
+
+skinparam classBackgroundColor #FFFFFF
+skinparam classBorderColor #1976D2
+skinparam classArrowColor #1976D2
+skinparam backgroundColor #F5F5F5
+skinparam defaultFontSize 12
+skinparam defaultFontFamily Arial
+skinparam roundcorner 8
+skinparam shadowing true
+
+title <size:18><b>🚗 Sistema de Gestão Veicular</b></size>\n<size:11>Diagrama de Classes - Principais Entidades</size> #1976D2
+
+package "👤 Usuários & Auditoria" #E1F5FE {
+
+    class "Usuario" as User {
+        <b>-</b> id: UUID
+        <b>-</b> email: String (unico)
+        <b>-</b> senha: String (hash)
+        <b>-</b> nome: String
+        <b>-</b> perfil: {ADMIN, USUARIO}
+        <b>-</b> ativo: Boolean
+        <b>-</b> ultimoLogin: DateTime
+        ==
+        <b>+</b> autenticar(): Boolean
+        <b>+</b> atualizarSenha(): void
+        <b>+</b> registrarAtividade(): void
+    }
+
+    class "LogAuditoria" as AuditLog {
+        <b>-</b> id: UUID
+        <b>-</b> usuarioId: String (FK)
+        <b>-</b> acao: String
+        <b>-</b> entidade: String
+        <b>-</b> entidadeId: String
+        <b>-</b> detalhes: JSON
+        <b>-</b> dataHora: DateTime
+        ==
+        <b>+</b> registrarAcao(): void
+        <b>+</b> obterHistorico(): LogAuditoria[]
+    }
+}
+
+package "🚗 Veículos & Manutenção" #F3E5F5 {
+
+    class "Veiculo" as Vehicle {
+        <b>-</b> id: UUID
+        <b>-</b> marca: String
+        <b>-</b> modelo: String
+        <b>-</b> ano: Integer
+        <b>-</b> placa: String (unico)
+        <b>-</b> chassi: String (unico)
+        <b>-</b> quilometragem: Float
+        <b>-</b> status: StatusVeiculo
+        <b>-</b> precoCompra: Float
+        <b>-</b> precoVenda: Float
+        ==
+        <b>+</b> atualizarStatus(): void
+        <b>+</b> obterManutencoes(): List
+        <b>+</b> atualizarQuilometragem(): void
+    }
+
+    class "Manutencao" as Maintenance {
+        <b>-</b> id: UUID
+        <b>-</b> veiculoId: String (FK)
+        <b>-</b> descricao: String
+        <b>-</b> custo: Float
+        <b>-</b> dataInicio: DateTime
+        <b>-</b> dataFim: DateTime
+        <b>-</b> status: StatusManutencao
+        <b>-</b> mecanico: String
+        ==
+        <b>+</b> iniciarManutencao(): void
+        <b>+</b> concluirManutencao(): void
+        <b>+</b> obterCustoTotal(): Float
+    }
+
+    class "OrdemServico" as ServiceOrder {
+        <b>-</b> id: UUID
+        <b>-</b> manutencaoId: String (FK)
+        <b>-</b> descricao: String
+        <b>-</b> custo: Float
+        <b>-</b> pecas: String[]
+        ==
+        <b>+</b> adicionarPeca(): void
+        <b>+</b> calcularTotal(): Float
+    }
+}
+
+package "💰 Transações & Pagamentos" #E8F5E9 {
+
+    class "Cliente" as Client {
+        <b>-</b> id: UUID
+        <b>-</b> nome: String
+        <b>-</b> email: String (unico)
+        <b>-</b> telefone: String
+        <b>-</b> cpf: String (unico)
+        <b>-</b> cnh: String (unico)
+        <b>-</b> endereco: String
+        <b>-</b> ativo: Boolean
+        ==
+        <b>+</b> validarDocumentos(): Boolean
+        <b>+</b> obterHistoricoTransacoes(): List
+    }
+
+    class "Transacao" as Transaction {
+        <b>-</b> id: UUID
+        <b>-</b> veiculoId: String (FK)
+        <b>-</b> clienteId: String (FK)
+        <b>-</b> tipo: TipoTransacao
+        <b>-</b> valor: Float
+        <b>-</b> status: StatusPagamento
+        <b>-</b> ativo: Boolean
+        ==
+        <b>+</b> processarPagamento(): Boolean
+        <b>+</b> gerarContrato(): Contrato
+        <b>+</b> obterParcelas(): List
+    }
+
+    class "Parcela" as Installment {
+        <b>-</b> id: UUID
+        <b>-</b> transacaoId: String (FK)
+        <b>-</b> numero: Integer
+        <b>-</b> valor: Float
+        <b>-</b> dataVencimento: DateTime
+        <b>-</b> status: StatusPagamento
+        <b>-</b> dataPagamento: DateTime
+        ==
+        <b>+</b> registrarPagamento(): void
+        <b>+</b> estaVencida(): Boolean
+        <b>+</b> obterJuros(): Float
+    }
+
+    class "Contrato" as Contract {
+        <b>-</b> id: UUID
+        <b>-</b> transacaoId: String (FK)
+        <b>-</b> nomeArquivo: String
+        <b>-</b> tipoMime: String
+        <b>-</b> hashArquivo: String
+        <b>-</b> dataUpload: DateTime
+        ==
+        <b>+</b> gerarDocumento(): void
+        <b>+</b> validarIntegridade(): Boolean
+    }
+}
+
+User "1" --o "0..*" AuditLog : registra
+Vehicle "1" --* "0..*" Maintenance
+Vehicle "1" --* "0..*" Transaction
+Client "1" --* "0..*" Transaction
+Transaction "1" --* "0..*" Installment
+Transaction "1" --* "1" Contract
+Maintenance "1" --* "0..*" ServiceOrder
+
+@enduml
