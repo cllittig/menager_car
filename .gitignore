@@ -1,0 +1,178 @@
+# Documentacao local (copiar/mover conforme necessidade da equipe)
+docs/
+
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# Testing
+coverage
+.nyc_output
+
+# Production
+build
+dist
+.next
+out
+.nuxt
+.output
+
+# Environment files (nunca commitar segredos)
+.env
+.env.*
+!.env.example
+!**/.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# IDE - VSCode (manter só o que a equipe quiser versionar)
+.vscode/*
+!.vscode/extensions.json
+*.code-workspace
+
+# IDE - JetBrains
+.idea
+*.iml
+*.iws
+*.ipr
+.idea_modules
+
+# IDE - Eclipse
+.classpath
+.project
+.settings
+.factorypath
+
+# IDE - NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+
+# Logs
+logs
+*.log
+lerna-debug.log*
+
+# System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+*.swp
+*.swo
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Cache
+.cache
+.parcel-cache
+.turbo
+.eslintcache
+.stylelintcache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Yarn Integrity file
+.yarn-integrity
+
+# vercel
+.vercel
+
+# Storybook
+storybook-static
+
+# Cypress
+cypress/videos/
+cypress/screenshots/
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# Temporary files
+*.tmp
+*.temp
+.temp
+.tmp
+
+# Arquivos de teste e desenvolvimento (NÃO DEVEM IR PARA PRODUÇÃO)
+test-*.json
+test-*.js
+test-*.ps1
+test-*.sh
+*.http
+*.rest
+debug-*
+*.debug
+
+# Relatórios/estado local do rollout de segurança (metadados do ambiente; não versionar)
+backend/supabase/security-rollout/_state/
+
+# Credenciais e configurações sensíveis
+secrets/
+.secrets/
+*.key
+*.pem
+*.p12
+*.pfx
+config/local.*
+.local
+
+# Backups e dumps
+*.dump
+*.backup
+*.bak
+*.sql.gz
+
+# Logs específicos
+audit.log
+error.log
+access.log
+security.log
+
+# Ferramentas de desenvolvimento
+.idea/workspace.xml
+.idea/tasks.xml
+
+# Arquivos do sistema operacional
+*.lnk
+.fuse_hidden*
+.nfs*
+
+# Certificados SSL (devem ser gerenciados separadamente)
+ssl/
+certs/
+certificates/
+
+# Performance e profiling
+*.cpuprofile
+*.heapprofile
+*.heapsnapshot 
