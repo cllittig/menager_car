@@ -1,0 +1,23 @@
+Tempo mínimo de validade do link (10 minutos)
+==============================================
+
+O texto do e-mail menciona "mínimo recomendado: 10 minutos". Para isso ser verdade no Supabase:
+
+1. Abra o projeto no Supabase Dashboard.
+2. Vá a Authentication → Providers (ou Sign In / Providers).
+3. Abra o provider Email.
+4. Localize o campo "Email OTP expiration" (ou semelhante: expiração do OTP / link por e-mail).
+5. Defina o valor em SEGUNDOS: 600 (= 10 minutos).
+   - Pode usar valores maiores (ex.: 1800 = 30 min), até ao limite permitido pelo painel (geralmente máx. 86400 = 24 h).
+6. Guarde as alterações.
+
+Nota: O mesmo tempo de expiração costuma aplicar-se a magic links, confirmação de e-mail e recuperação de palavra-passe, consoante a versão do projeto.
+
+Colar o template HTML
+======================
+
+1. Authentication → Email templates → Reset Password.
+2. Subject: use o texto em reset-password.subject.txt (uma linha).
+3. Body: copie todo o conteúdo de reset-password.html para o editor do painel (modo HTML / código).
+
+Variáveis usadas no template: {{ .ConfirmationURL }}, {{ .Email }}, {{ .SiteURL }}
