@@ -1,3 +1,10 @@
+# AI Agent Instructions
+CLAUDE.md
+GEMINI.md
+.claude/
+.gemini/
+MEMORY.md
+
 # Documentacao local (copiar/mover conforme necessidade da equipe)
 docs/
 
@@ -176,3 +183,11 @@ certificates/
 *.cpuprofile
 *.heapprofile
 *.heapsnapshot 
+
+
+# Claude Code (memórias locais — não versionar)
+.claude/memory/
+# Arquivos de configuração do Supabase
+pacotes_entrega_grupo/
+*.zip
+/docs
