@@ -4,6 +4,13 @@ const devAllowedHosts = (process.env.NEXT_DEV_ALLOWED_ORIGINS || '')
   .map((s) => s.trim())
   .filter(Boolean)
 
+// Normaliza para "host:port" — entradas que já têm porta ficam como estão;
+// entradas sem porta recebem :3000 (Next dev server padrão).
+const devAllowedOrigins = devAllowedHosts.flatMap((host) => {
+  const hasPort = /:\d+$/.test(host)
+  return hasPort ? [host] : [host, `${host}:3000`]
+})
+
 const nextConfig = {
 
   ...(devAllowedHosts.length > 0 ? { allowedDevOrigins: devAllowedHosts } : {}),
@@ -34,7 +41,7 @@ const nextConfig = {
       allowedOrigins: [
         'localhost:3000',
         'localhost:3001',
-        ...devAllowedHosts.map((host) => `${host}:3000`),
+        ...devAllowedOrigins,
       ],
       bodySizeLimit: '2mb',
     },
