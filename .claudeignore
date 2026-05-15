@@ -1,0 +1,84 @@
+# Dependencies
+node_modules/
+**/node_modules/
+.pnp
+.pnp.js
+.yarn/
+
+# Build Outputs
+dist/
+build/
+.next/
+out/
+.nuxt/
+.output/
+*.tsbuildinfo
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+.classpath
+.project
+.settings/
+.factorypath
+nbproject/
+nbactions.xml
+nb-configuration.xml
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Testing and Coverage
+coverage/
+.nyc_output/
+cypress/videos/
+cypress/screenshots/
+test-results/
+playwright-report/
+
+# Locks (Large files, not useful for context)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# Environment and Secrets
+.env
+.env.*
+secrets/
+.secrets/
+*.key
+*.pem
+
+# Temporary Files
+*.tmp
+*.temp
+.temp/
+.tmp/
+
+# Supabase Local State
+backend/supabase/security-rollout/_state/
+supabase/.temp/
+
+# Assets and Large Files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.mp4
+*.pdf
+pacotes_entrega_grupo/
+
+# Documentation (Optional, but often large)
+docs/

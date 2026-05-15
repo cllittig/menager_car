@@ -1,0 +1,18 @@
+{
+  "recommendations": [
+    "rvest.vs-code-prettier-eslint",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-vscode.vscode-typescript-next",
+    "dsznajder.es7-react-js-snippets",
+    "bradlc.vscode-tailwindcss",
+    "nicholas-pattifi.vscode-nest-snippets",
+    "antfu.browse-lite",
+    "eamodio.gitlens",
+    "christian-kohler.path-intellisense",
+    "editorconfig.editorconfig",
+    "visualstudioexptteam.vscodeintellicode",
+    "mikestead.dotenv",
+    "prisma.prisma"
+  ]
+}
