@@ -19,8 +19,8 @@ const { configDotenv } = require('dotenv');
 configDotenv({ path: path.join(__dirname, '../.env') });
 
 const backendRoot = path.join(__dirname, '..');
-const rolloutDir = path.join(backendRoot, 'supabase/security-rollout');
-const stateDir = path.join(rolloutDir, '_state');
+const migrationsDir = path.join(backendRoot, 'supabase/migrations');
+const stateDir = path.join(backendRoot, 'supabase/migrations/_state');
 
 const PG_COMPAT_QUERY = 'uselibpqcompat=true&sslmode=require';
 
@@ -459,7 +459,7 @@ async function main() {
     }
 
     if (applyMig08) {
-      const mig08Path = path.join(rolloutDir, 'MIG-08.sql');
+      const mig08Path = path.join(migrationsDir, '20260515100008_security_rls_harden.sql');
       if (fs.existsSync(mig08Path)) {
         try {
           const sql = fs.readFileSync(mig08Path, 'utf8');

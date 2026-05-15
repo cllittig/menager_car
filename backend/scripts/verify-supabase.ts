@@ -1,14 +1,14 @@
-/**
- * Teste rápido: valida SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY e uma leitura na tabela User.
- * Uso: npm run verify:supabase
- */
+
+
+
+
 import { createClient } from '@supabase/supabase-js';
 import { configDotenv } from 'dotenv';
 import { resolve } from 'path';
 
 configDotenv({ path: resolve(__dirname, '../.env') });
 
-/** Evita assert do libuv no Windows ao sair com ts-node + fetch ainda encerrando. */
+
 function exitLater(code: number): void {
   process.exitCode = code;
   setTimeout(() => process.exit(code), 100);

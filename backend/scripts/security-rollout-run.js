@@ -17,8 +17,20 @@ const { configDotenv } = require('dotenv');
 configDotenv({ path: path.join(__dirname, '../.env') });
 
 const backendRoot = path.join(__dirname, '..');
-const rolloutDir = path.join(backendRoot, 'supabase/security-rollout');
-const stateDir = path.join(rolloutDir, '_state');
+const migrationsDir = path.join(backendRoot, 'supabase/migrations');
+const stateDir = path.join(backendRoot, 'supabase/migrations/_state');
+
+// Map from legacy MIG number to the new timestamped filename in supabase/migrations/.
+const MIG_FILENAME = {
+  1: '20260515100001_security_restrict_default_privs.sql',
+  2: '20260515100002_security_revoke_write_from_roles.sql',
+  3: '20260515100003_security_revoke_anon_select.sql',
+  4: '20260515100004_security_create_jwt_functions.sql',
+  5: '20260515100005_security_rls_bootstrap.sql',
+  6: '20260515100006_security_rls_tenant_policies.sql',
+  7: '20260515100007_security_tenant_sync_triggers.sql',
+  8: '20260515100008_security_rls_harden.sql',
+};
 
 const PG_COMPAT_QUERY = 'uselibpqcompat=true&sslmode=require';
 
@@ -186,7 +198,9 @@ function writeJson(name, data) {
 }
 
 function loadMigFile(num) {
-  const p = path.join(rolloutDir, `MIG-${String(num).padStart(2, '0')}.sql`);
+  const filename = MIG_FILENAME[num];
+  if (!filename) throw new Error(`MIG-${String(num).padStart(2, '0')}: mapeamento de arquivo não encontrado`);
+  const p = path.join(migrationsDir, filename);
   if (!fs.existsSync(p)) throw new Error(`Arquivo ausente: ${p}`);
   return fs.readFileSync(p, 'utf8');
 }
