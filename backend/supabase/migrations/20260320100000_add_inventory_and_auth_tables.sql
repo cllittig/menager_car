@@ -1,5 +1,10 @@
--- Migração incremental (projeto já existente no Supabase). Executar uma vez no SQL Editor.
--- Banco NOVO: use apply-schema-fresh.sql completo em vez deste arquivo.
+-- Migration: 20260320100000_add_inventory_and_auth_tables
+-- Description: Add EMPLOYEE role, StockMovementType enum, inventory tables
+--              (Category, Supplier, Product, StockMovement), and auth-support tables
+--              (PasswordReset, ReportSnapshot, ReportSchedule) with FKs and indexes.
+-- Depends on: 20260320000000_add_tenant_core (Tenant table must exist)
+
+BEGIN;
 
 DO $$ BEGIN
   CREATE TYPE "StockMovementType" AS ENUM ('IN', 'OUT', 'ADJUST');
@@ -7,7 +12,7 @@ EXCEPTION
   WHEN duplicate_object THEN NULL;
 END $$;
 
-alter type "Role" add value if not exists 'EMPLOYEE';
+ALTER TYPE "Role" ADD VALUE IF NOT EXISTS 'EMPLOYEE';
 
 CREATE TABLE IF NOT EXISTS "Category" (
     "id" TEXT NOT NULL,
@@ -96,7 +101,7 @@ CREATE TABLE IF NOT EXISTS "ReportSchedule" (
     CONSTRAINT "ReportSchedule_pkey" PRIMARY KEY ("id")
 );
 
--- FKs (ignorar erro "already exists" se rodar de novo)
+
 ALTER TABLE "Category" DROP CONSTRAINT IF EXISTS "Category_tenantId_fkey";
 ALTER TABLE "Category" ADD CONSTRAINT "Category_tenantId_fkey"
   FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON UPDATE CASCADE ON DELETE RESTRICT;
@@ -143,8 +148,11 @@ ALTER TABLE "ReportSchedule" DROP CONSTRAINT IF EXISTS "ReportSchedule_createdBy
 ALTER TABLE "ReportSchedule" ADD CONSTRAINT "ReportSchedule_createdBy_fkey"
   FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON UPDATE CASCADE ON DELETE RESTRICT;
 
-CREATE INDEX IF NOT EXISTS "StockMovement_productId_idx" ON "StockMovement"("productId");
+
+CREATE INDEX IF NOT EXISTS "StockMovement_productId_idx"          ON "StockMovement"("productId");
 CREATE INDEX IF NOT EXISTS "StockMovement_tenantId_createdAt_idx" ON "StockMovement"("tenantId", "createdAt");
-CREATE INDEX IF NOT EXISTS "PasswordReset_tokenHash_idx" ON "PasswordReset"("tokenHash");
-CREATE INDEX IF NOT EXISTS "ReportSnapshot_tenantId_idx" ON "ReportSnapshot"("tenantId");
-CREATE INDEX IF NOT EXISTS "ReportSchedule_tenantId_idx" ON "ReportSchedule"("tenantId");
+CREATE INDEX IF NOT EXISTS "PasswordReset_tokenHash_idx"          ON "PasswordReset"("tokenHash");
+CREATE INDEX IF NOT EXISTS "ReportSnapshot_tenantId_idx"          ON "ReportSnapshot"("tenantId");
+CREATE INDEX IF NOT EXISTS "ReportSchedule_tenantId_idx"          ON "ReportSchedule"("tenantId");
+
+COMMIT;

@@ -1,4 +1,8 @@
--- CreateTable
+-- Migration: 20250619165732_add_categoria
+-- Description: Create temporary Portuguese-named Categoria table (dropped in next migration).
+
+BEGIN;
+
 CREATE TABLE "Categoria" (
     "id" TEXT NOT NULL,
     "nome" TEXT NOT NULL,
@@ -8,3 +12,5 @@ CREATE TABLE "Categoria" (
 
     CONSTRAINT "Categoria_pkey" PRIMARY KEY ("id")
 );
+
+COMMIT;

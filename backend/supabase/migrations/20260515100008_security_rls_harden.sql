@@ -1,5 +1,11 @@
--- MIG-08: endurecer policies — exige jwt_tenant_id() = tenantId (sem ramo IS NULL)
--- Só executar com SECURITY_APPLY_MIG08=true após JWT Supabase com app_metadata.tenant_id estável.
+-- Migration: 20260515100008_security_rls_harden
+-- Description: Harden RLS by removing the NULL jwt_tenant_id bypass.
+--              After this migration all policies require an exact tenantId match
+--              (service-role connections bypass RLS at the PostgreSQL level and are unaffected).
+
+BEGIN;
+
+-- Harden all tables that now have a direct tenantId column.
 DO $$
 DECLARE t text;
 BEGIN
@@ -41,6 +47,7 @@ BEGIN
   END LOOP;
 END $$;
 
+-- Tenant table: strict self-match only.
 DO $$
 BEGIN
   IF EXISTS (
@@ -52,3 +59,5 @@ BEGIN
       USING ("id" = public.jwt_tenant_id());
   END IF;
 END $$;
+
+COMMIT;

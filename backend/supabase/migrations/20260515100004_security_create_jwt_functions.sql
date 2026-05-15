@@ -1,4 +1,10 @@
--- MIG-04: helpers para RLS
+-- Migration: 20260515100004_security_create_jwt_functions
+-- Description: Create helper functions used by RLS policies:
+--              jwt_tenant_id() extracts tenant_id from the JWT,
+--              app_bootstrap_allow_rls() is a permissive stub used during the bootstrap phase.
+
+BEGIN;
+
 CREATE OR REPLACE FUNCTION public.jwt_tenant_id()
 RETURNS text
 LANGUAGE sql
@@ -15,3 +21,5 @@ RETURNS boolean
 LANGUAGE sql
 STABLE
 AS 'SELECT true';
+
+COMMIT;

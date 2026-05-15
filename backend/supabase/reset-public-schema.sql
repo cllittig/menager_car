@@ -1,8 +1,8 @@
--- DESTRUTIVO: remove todo o conteudo do schema public (tabelas, tipos ENUM, funcoes neste schema).
--- Nao mexe em auth, storage, realtime, extensions (Supabase).
--- Depois deste script, rode apply-schema-fresh.sql (ex.: npm run db:apply ou npm run db:apply:fresh).
---
--- NAO execute no painel de producao sem backup.
+
+
+
+
+
 
 DROP SCHEMA IF EXISTS public CASCADE;
 CREATE SCHEMA public;

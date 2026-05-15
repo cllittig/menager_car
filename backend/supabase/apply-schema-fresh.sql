@@ -1,33 +1,33 @@
 -- Schema completo para banco NOVO no Supabase (public).
--- Gerado a partir do historico SQL em supabase/schema-migrations-legacy + INSERT bootstrap para admin@controleveicular.com
+-- Gerado a partir de supabase/migrations/ + INSERT bootstrap para admin@controleveicular.com
 -- Como usar: Supabase > SQL Editor > colar e Run. Depois: npm run verify:supabase
 -- Usuario bootstrap: admin@controleveicular.com / senha: AlterarAposPrimeiroLogin1! (troque apos primeiro acesso).
+-- Nota: policies RLS e restricoes de privilege sao aplicadas separadamente via npm run security:rollout
 
 
 
--- === 20250607214241_sistema/migration.sql ===
--- CreateEnum
+-- === 20250607214241_initial_schema.sql ===
+-- Migration: 20250607214241_initial_schema
+-- Description: Create all ENUMs and core tables (User, Vehicle, Client, Maintenance,
+--              ServiceOrder, Contract, Transaction, Installment, AuditLog)
+
+BEGIN;
+
 CREATE TYPE "Role" AS ENUM ('ADMIN', 'USER');
 
--- CreateEnum
 CREATE TYPE "FuelType" AS ENUM ('GASOLINE', 'ETHANOL', 'DIESEL', 'FLEX', 'ELECTRIC', 'HYBRID');
 
--- CreateEnum
 CREATE TYPE "VehicleStatus" AS ENUM ('AVAILABLE', 'SOLD', 'RENTED', 'MAINTENANCE');
 
--- CreateEnum
 CREATE TYPE "MaintenanceStatus" AS ENUM ('PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED');
 
--- CreateEnum
 CREATE TYPE "TransactionType" AS ENUM ('SALE', 'RENT', 'PURCHASE');
 
--- CreateEnum
 CREATE TYPE "PaymentStatus" AS ENUM ('PENDING', 'PAID', 'OVERDUE', 'CANCELLED');
 
--- CreateEnum
 CREATE TYPE "ContractStatus" AS ENUM ('PENDING', 'SIGNED', 'EXPIRED', 'CANCELLED');
 
--- CreateTable
+
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE "User" (
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+
 CREATE TABLE "Vehicle" (
     "id" TEXT NOT NULL,
     "brand" TEXT NOT NULL,
@@ -76,7 +76,7 @@ CREATE TABLE "Vehicle" (
     CONSTRAINT "Vehicle_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+
 CREATE TABLE "Client" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -96,7 +96,7 @@ CREATE TABLE "Client" (
     CONSTRAINT "Client_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+
 CREATE TABLE "Maintenance" (
     "id" TEXT NOT NULL,
     "vehicleId" TEXT NOT NULL,
@@ -112,7 +112,7 @@ CREATE TABLE "Maintenance" (
     CONSTRAINT "Maintenance_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+
 CREATE TABLE "ServiceOrder" (
     "id" TEXT NOT NULL,
     "maintenanceId" TEXT NOT NULL,
@@ -125,7 +125,7 @@ CREATE TABLE "ServiceOrder" (
     CONSTRAINT "ServiceOrder_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+
 CREATE TABLE "Contract" (
     "id" TEXT NOT NULL,
     "transactionId" TEXT NOT NULL,
@@ -141,7 +141,7 @@ CREATE TABLE "Contract" (
     CONSTRAINT "Contract_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+
 CREATE TABLE "Transaction" (
     "id" TEXT NOT NULL,
     "vehicleId" TEXT NOT NULL,
@@ -160,7 +160,7 @@ CREATE TABLE "Transaction" (
     CONSTRAINT "Transaction_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+
 CREATE TABLE "Installment" (
     "id" TEXT NOT NULL,
     "transactionId" TEXT NOT NULL,
@@ -175,7 +175,7 @@ CREATE TABLE "Installment" (
     CONSTRAINT "Installment_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+
 CREATE TABLE "AuditLog" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
@@ -189,115 +189,64 @@ CREATE TABLE "AuditLog" (
     CONSTRAINT "AuditLog_pkey" PRIMARY KEY ("id")
 );
 
--- CreateIndex
+
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
-
--- CreateIndex
 CREATE INDEX "User_email_idx" ON "User"("email");
-
--- CreateIndex
 CREATE INDEX "User_isActive_idx" ON "User"("isActive");
 
--- CreateIndex
 CREATE UNIQUE INDEX "Vehicle_licensePlate_key" ON "Vehicle"("licensePlate");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Vehicle_chassis_key" ON "Vehicle"("chassis");
-
--- CreateIndex
 CREATE INDEX "Vehicle_licensePlate_idx" ON "Vehicle"("licensePlate");
-
--- CreateIndex
 CREATE INDEX "Vehicle_chassis_idx" ON "Vehicle"("chassis");
-
--- CreateIndex
 CREATE INDEX "Vehicle_status_idx" ON "Vehicle"("status");
-
--- CreateIndex
 CREATE INDEX "Vehicle_isActive_idx" ON "Vehicle"("isActive");
 
--- CreateIndex
 CREATE UNIQUE INDEX "Client_email_key" ON "Client"("email");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Client_cpf_key" ON "Client"("cpf");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Client_cnh_key" ON "Client"("cnh");
-
--- CreateIndex
 CREATE INDEX "Client_email_idx" ON "Client"("email");
-
--- CreateIndex
 CREATE INDEX "Client_cpf_idx" ON "Client"("cpf");
-
--- CreateIndex
 CREATE INDEX "Client_cnh_idx" ON "Client"("cnh");
-
--- CreateIndex
 CREATE INDEX "Client_isActive_idx" ON "Client"("isActive");
 
--- CreateIndex
 CREATE UNIQUE INDEX "Contract_transactionId_key" ON "Contract"("transactionId");
-
--- CreateIndex
 CREATE INDEX "Contract_transactionId_idx" ON "Contract"("transactionId");
 
--- CreateIndex
 CREATE INDEX "Transaction_vehicleId_idx" ON "Transaction"("vehicleId");
-
--- CreateIndex
 CREATE INDEX "Transaction_clientId_idx" ON "Transaction"("clientId");
-
--- CreateIndex
 CREATE INDEX "Transaction_status_idx" ON "Transaction"("status");
-
--- CreateIndex
 CREATE INDEX "Transaction_isActive_idx" ON "Transaction"("isActive");
 
--- CreateIndex
 CREATE INDEX "AuditLog_userId_idx" ON "AuditLog"("userId");
-
--- CreateIndex
 CREATE INDEX "AuditLog_entity_idx" ON "AuditLog"("entity");
-
--- CreateIndex
 CREATE INDEX "AuditLog_entityId_idx" ON "AuditLog"("entityId");
-
--- CreateIndex
 CREATE INDEX "AuditLog_timestamp_idx" ON "AuditLog"("timestamp");
 
--- AddForeignKey
+
 ALTER TABLE "Maintenance" ADD CONSTRAINT "Maintenance_vehicleId_fkey" FOREIGN KEY ("vehicleId") REFERENCES "Vehicle"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE "ServiceOrder" ADD CONSTRAINT "ServiceOrder_maintenanceId_fkey" FOREIGN KEY ("maintenanceId") REFERENCES "Maintenance"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE "Contract" ADD CONSTRAINT "Contract_transactionId_fkey" FOREIGN KEY ("transactionId") REFERENCES "Transaction"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_vehicleId_fkey" FOREIGN KEY ("vehicleId") REFERENCES "Vehicle"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE "Installment" ADD CONSTRAINT "Installment_transactionId_fkey" FOREIGN KEY ("transactionId") REFERENCES "Transaction"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE "AuditLog" ADD CONSTRAINT "AuditLog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
+COMMIT;
 
--- === 20250619155804_init/migration.sql ===
-/*
-  Warnings:
 
-  - The values [RENT] on the enum `TransactionType` will be removed. If these variants are still used in the database, this will fail.
-  - The values [RENTED] on the enum `VehicleStatus` will be removed. If these variants are still used in the database, this will fail.
+-- === 20250619155804_refine_transaction_enums.sql ===
+-- Migration: 20250619155804_refine_transaction_enums
+-- Description: Replace TransactionType enum (adds MAINTENANCE, removes RENT),
+--              replace VehicleStatus enum (adds RESERVED), drop unused ContractStatus enum.
+-- Note: ALTER TYPE ADD VALUE is transactional in PG12+. Each enum swap uses
+--       the create-rename-drop pattern to stay fully transactional.
 
-*/
--- AlterEnum
 BEGIN;
 CREATE TYPE "TransactionType_new" AS ENUM ('PURCHASE', 'SALE', 'MAINTENANCE');
 ALTER TABLE "Transaction" ALTER COLUMN "type" TYPE "TransactionType_new" USING ("type"::text::"TransactionType_new");
@@ -306,7 +255,6 @@ ALTER TYPE "TransactionType_new" RENAME TO "TransactionType";
 DROP TYPE "TransactionType_old";
 COMMIT;
 
--- AlterEnum
 BEGIN;
 CREATE TYPE "VehicleStatus_new" AS ENUM ('AVAILABLE', 'SOLD', 'MAINTENANCE', 'RESERVED');
 ALTER TABLE "Vehicle" ALTER COLUMN "status" DROP DEFAULT;
@@ -317,12 +265,16 @@ DROP TYPE "VehicleStatus_old";
 ALTER TABLE "Vehicle" ALTER COLUMN "status" SET DEFAULT 'AVAILABLE';
 COMMIT;
 
--- DropEnum
+-- ContractStatus was defined in the initial schema but never used by any table column.
 DROP TYPE "ContractStatus";
 
 
--- === 20250619165732_add_categoria/migration.sql ===
--- CreateTable
+-- === 20250619165732_add_categoria.sql ===
+-- Migration: 20250619165732_add_categoria
+-- Description: Create temporary Portuguese-named Categoria table (dropped in next migration).
+
+BEGIN;
+
 CREATE TABLE "Categoria" (
     "id" TEXT NOT NULL,
     "nome" TEXT NOT NULL,
@@ -333,16 +285,19 @@ CREATE TABLE "Categoria" (
     CONSTRAINT "Categoria_pkey" PRIMARY KEY ("id")
 );
 
+COMMIT;
 
--- === 20250619180001_sistema_veicular_completo/migration.sql ===
-/*
-  Warnings:
 
-  - You are about to drop the `Categoria` table. If the table is not empty, all the data it contains will be lost.
+-- === 20250619180001_drop_categoria.sql ===
+-- Migration: 20250619180001_drop_categoria
+-- Description: Drop the Categoria table added in the previous migration.
+--              The Category table (English, tenant-aware) is created later in the inventory migration.
 
-*/
--- DropTable
+BEGIN;
+
 DROP TABLE "Categoria";
+
+COMMIT;
 
 
 
@@ -362,132 +317,328 @@ VALUES (
 
 
 
--- === 20250619203552_add_user_isolation/migration.sql ===
-/*
-  Warnings:
+-- === 20250619203552_add_user_isolation.sql ===
+-- Migration: 20250619203552_add_user_isolation
+-- Description: Add userId FK to Client and Vehicle; backfill from the seeded admin user.
 
-  - Added the required column `userId` to the `Client` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `userId` to the `Vehicle` table without a default value. This is not possible if the table is not empty.
+BEGIN;
 
-*/
-
--- Primeiro, adicionar as colunas como nullable
 ALTER TABLE "Client" ADD COLUMN "userId" TEXT;
 ALTER TABLE "Vehicle" ADD COLUMN "userId" TEXT;
 
--- Atualizar todos os registros existentes com o ID do usuário admin
 UPDATE "Client" SET "userId" = (SELECT id FROM "User" WHERE email = 'admin@controleveicular.com' LIMIT 1);
 UPDATE "Vehicle" SET "userId" = (SELECT id FROM "User" WHERE email = 'admin@controleveicular.com' LIMIT 1);
 
--- Agora tornar as colunas NOT NULL
 ALTER TABLE "Client" ALTER COLUMN "userId" SET NOT NULL;
 ALTER TABLE "Vehicle" ALTER COLUMN "userId" SET NOT NULL;
 
--- Criar índices
 CREATE INDEX "Client_userId_idx" ON "Client"("userId");
 CREATE INDEX "Vehicle_userId_idx" ON "Vehicle"("userId");
 
--- Adicionar Foreign Keys
 ALTER TABLE "Vehicle" ADD CONSTRAINT "Vehicle_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "Client" ADD CONSTRAINT "Client_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
+COMMIT;
 
--- === 20250619233336_fix_vehicle_unique_constraints_by_user/migration.sql ===
-/*
-  Warnings:
 
-  - A unique constraint covering the columns `[userId,licensePlate]` on the table `Vehicle` will be added. If there are existing duplicate values, this will fail.
-  - A unique constraint covering the columns `[userId,chassis]` on the table `Vehicle` will be added. If there are existing duplicate values, this will fail.
+-- === 20250619233336_fix_vehicle_unique_constraints.sql ===
+-- Migration: 20250619233336_fix_vehicle_unique_constraints
+-- Description: Replace global unique indexes on Client (email/cpf/cnh) and Vehicle
+--              (licensePlate/chassis) with user-scoped composite unique indexes.
 
-*/
--- DropIndex
+BEGIN;
+
 DROP INDEX "Client_cnh_key";
-
--- DropIndex
 DROP INDEX "Client_cpf_key";
-
--- DropIndex
 DROP INDEX "Client_email_key";
-
--- DropIndex
 DROP INDEX "Vehicle_chassis_key";
-
--- DropIndex
 DROP INDEX "Vehicle_licensePlate_key";
 
--- CreateIndex
 CREATE UNIQUE INDEX "Vehicle_userId_licensePlate_key" ON "Vehicle"("userId", "licensePlate");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Vehicle_userId_chassis_key" ON "Vehicle"("userId", "chassis");
 
-
--- === 20250620011743_add_audit_fields_to_maintenance/migration.sql ===
--- AlterTable
-ALTER TABLE "Maintenance" ADD COLUMN     "createdBy" TEXT,
-ADD COLUMN     "deletedBy" TEXT,
-ADD COLUMN     "updatedBy" TEXT;
+COMMIT;
 
 
--- === 20250620013204_add_birthdate_to_client/migration.sql ===
--- AlterTable
-ALTER TABLE "Client" ADD COLUMN     "birthDate" TIMESTAMP(3);
+-- === 20250620011743_add_maintenance_audit_fields.sql ===
+-- Migration: 20250620011743_add_maintenance_audit_fields
+-- Description: Add createdBy, deletedBy, updatedBy audit columns to Maintenance.
+
+BEGIN;
+
+ALTER TABLE "Maintenance"
+  ADD COLUMN "createdBy" TEXT,
+  ADD COLUMN "deletedBy" TEXT,
+  ADD COLUMN "updatedBy" TEXT;
+
+COMMIT;
 
 
--- === 20260320_add_tenant_core/migration.sql ===
--- Multi-tenant core migration
+-- === 20250620013204_add_client_birthdate.sql ===
+-- Migration: 20250620013204_add_client_birthdate
+-- Description: Add optional birthDate column to Client.
 
-create table if not exists "Tenant" (
-  "id" text primary key,
-  "name" text not null,
-  "slug" text not null unique,
-  "isActive" boolean not null default true,
-  "createdAt" timestamp(3) not null default current_timestamp,
-  "updatedAt" timestamp(3) not null default current_timestamp
+BEGIN;
+
+ALTER TABLE "Client" ADD COLUMN "birthDate" TIMESTAMP(3);
+
+COMMIT;
+
+
+-- === 20260320000000_add_tenant_core.sql ===
+-- Migration: 20260320000000_add_tenant_core
+-- Description: Create Tenant table, seed default tenant, add tenantId to core tables,
+--              backfill existing rows, enforce NOT NULL, add FK constraints and indexes,
+--              and replace user-scoped Vehicle unique indexes with tenant-scoped ones.
+
+BEGIN;
+
+CREATE TABLE IF NOT EXISTS "Tenant" (
+  "id" TEXT PRIMARY KEY,
+  "name" TEXT NOT NULL,
+  "slug" TEXT NOT NULL UNIQUE,
+  "isActive" BOOLEAN NOT NULL DEFAULT true,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create default tenant and backfill existing rows
-insert into "Tenant" ("id", "name", "slug", "isActive")
-values ('00000000-0000-0000-0000-000000000001', 'Default Tenant', 'default-tenant', true)
-on conflict ("slug") do nothing;
+INSERT INTO "Tenant" ("id", "name", "slug", "isActive")
+VALUES ('00000000-0000-0000-0000-000000000001', 'Default Tenant', 'default-tenant', true)
+ON CONFLICT ("slug") DO NOTHING;
 
-alter table "User" add column if not exists "tenantId" text;
-alter table "Vehicle" add column if not exists "tenantId" text;
-alter table "Client" add column if not exists "tenantId" text;
-alter table "Transaction" add column if not exists "tenantId" text;
-alter table "Contract" add column if not exists "tenantId" text;
+ALTER TABLE "User"        ADD COLUMN IF NOT EXISTS "tenantId" TEXT;
+ALTER TABLE "Vehicle"     ADD COLUMN IF NOT EXISTS "tenantId" TEXT;
+ALTER TABLE "Client"      ADD COLUMN IF NOT EXISTS "tenantId" TEXT;
+ALTER TABLE "Transaction" ADD COLUMN IF NOT EXISTS "tenantId" TEXT;
+ALTER TABLE "Contract"    ADD COLUMN IF NOT EXISTS "tenantId" TEXT;
 
-update "User" set "tenantId" = '00000000-0000-0000-0000-000000000001' where "tenantId" is null;
-update "Vehicle" set "tenantId" = '00000000-0000-0000-0000-000000000001' where "tenantId" is null;
-update "Client" set "tenantId" = '00000000-0000-0000-0000-000000000001' where "tenantId" is null;
-update "Transaction" set "tenantId" = '00000000-0000-0000-0000-000000000001' where "tenantId" is null;
-update "Contract" set "tenantId" = '00000000-0000-0000-0000-000000000001' where "tenantId" is null;
+UPDATE "User"        SET "tenantId" = '00000000-0000-0000-0000-000000000001' WHERE "tenantId" IS NULL;
+UPDATE "Vehicle"     SET "tenantId" = '00000000-0000-0000-0000-000000000001' WHERE "tenantId" IS NULL;
+UPDATE "Client"      SET "tenantId" = '00000000-0000-0000-0000-000000000001' WHERE "tenantId" IS NULL;
+UPDATE "Transaction" SET "tenantId" = '00000000-0000-0000-0000-000000000001' WHERE "tenantId" IS NULL;
+UPDATE "Contract"    SET "tenantId" = '00000000-0000-0000-0000-000000000001' WHERE "tenantId" IS NULL;
 
-alter table "User" alter column "tenantId" set not null;
-alter table "Vehicle" alter column "tenantId" set not null;
-alter table "Client" alter column "tenantId" set not null;
-alter table "Transaction" alter column "tenantId" set not null;
-alter table "Contract" alter column "tenantId" set not null;
+ALTER TABLE "User"        ALTER COLUMN "tenantId" SET NOT NULL;
+ALTER TABLE "Vehicle"     ALTER COLUMN "tenantId" SET NOT NULL;
+ALTER TABLE "Client"      ALTER COLUMN "tenantId" SET NOT NULL;
+ALTER TABLE "Transaction" ALTER COLUMN "tenantId" SET NOT NULL;
+ALTER TABLE "Contract"    ALTER COLUMN "tenantId" SET NOT NULL;
 
-alter table "User" add constraint "User_tenantId_fkey"
-  foreign key ("tenantId") references "Tenant"("id") on update cascade on delete restrict;
-alter table "Vehicle" add constraint "Vehicle_tenantId_fkey"
-  foreign key ("tenantId") references "Tenant"("id") on update cascade on delete restrict;
-alter table "Client" add constraint "Client_tenantId_fkey"
-  foreign key ("tenantId") references "Tenant"("id") on update cascade on delete restrict;
-alter table "Transaction" add constraint "Transaction_tenantId_fkey"
-  foreign key ("tenantId") references "Tenant"("id") on update cascade on delete restrict;
-alter table "Contract" add constraint "Contract_tenantId_fkey"
-  foreign key ("tenantId") references "Tenant"("id") on update cascade on delete restrict;
+ALTER TABLE "User" ADD CONSTRAINT "User_tenantId_fkey"
+  FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE "Vehicle" ADD CONSTRAINT "Vehicle_tenantId_fkey"
+  FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE "Client" ADD CONSTRAINT "Client_tenantId_fkey"
+  FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_tenantId_fkey"
+  FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE "Contract" ADD CONSTRAINT "Contract_tenantId_fkey"
+  FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON UPDATE CASCADE ON DELETE RESTRICT;
 
-create index if not exists "User_tenantId_idx" on "User"("tenantId");
-create index if not exists "Vehicle_tenantId_idx" on "Vehicle"("tenantId");
-create index if not exists "Client_tenantId_idx" on "Client"("tenantId");
-create index if not exists "Transaction_tenantId_idx" on "Transaction"("tenantId");
-create index if not exists "Contract_tenantId_idx" on "Contract"("tenantId");
+CREATE INDEX IF NOT EXISTS "User_tenantId_idx"        ON "User"("tenantId");
+CREATE INDEX IF NOT EXISTS "Vehicle_tenantId_idx"     ON "Vehicle"("tenantId");
+CREATE INDEX IF NOT EXISTS "Client_tenantId_idx"      ON "Client"("tenantId");
+CREATE INDEX IF NOT EXISTS "Transaction_tenantId_idx" ON "Transaction"("tenantId");
+CREATE INDEX IF NOT EXISTS "Contract_tenantId_idx"    ON "Contract"("tenantId");
 
-drop index if exists "unique_user_license_plate";
-drop index if exists "unique_user_chassis";
-create unique index if not exists "unique_tenant_license_plate" on "Vehicle"("tenantId", "licensePlate");
-create unique index if not exists "unique_tenant_chassis" on "Vehicle"("tenantId", "chassis");
+-- Replace user-scoped unique indexes with tenant-scoped ones.
+DROP INDEX IF EXISTS "unique_user_license_plate";
+DROP INDEX IF EXISTS "unique_user_chassis";
+CREATE UNIQUE INDEX IF NOT EXISTS "unique_tenant_license_plate" ON "Vehicle"("tenantId", "licensePlate");
+CREATE UNIQUE INDEX IF NOT EXISTS "unique_tenant_chassis"       ON "Vehicle"("tenantId", "chassis");
+
+COMMIT;
+
+
+-- === 20260320100000_add_inventory_and_auth_tables.sql ===
+-- Migration: 20260320100000_add_inventory_and_auth_tables
+-- Description: Add EMPLOYEE role, StockMovementType enum, inventory tables
+--              (Category, Supplier, Product, StockMovement), and auth-support tables
+--              (PasswordReset, ReportSnapshot, ReportSchedule) with FKs and indexes.
+-- Depends on: 20260320000000_add_tenant_core (Tenant table must exist)
+
+BEGIN;
+
+DO $$ BEGIN
+  CREATE TYPE "StockMovementType" AS ENUM ('IN', 'OUT', 'ADJUST');
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+ALTER TYPE "Role" ADD VALUE IF NOT EXISTS 'EMPLOYEE';
+
+CREATE TABLE IF NOT EXISTS "Category" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "Category_tenantId_name_key" ON "Category"("tenantId", "name");
+
+CREATE TABLE IF NOT EXISTS "Supplier" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT,
+    "phone" TEXT,
+    "document" TEXT,
+    "address" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    CONSTRAINT "Supplier_pkey" PRIMARY KEY ("id")
+);
+
+CREATE TABLE IF NOT EXISTS "Product" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "categoryId" TEXT,
+    "supplierId" TEXT,
+    "name" TEXT NOT NULL,
+    "sku" TEXT NOT NULL,
+    "unit" TEXT NOT NULL DEFAULT 'UN',
+    "quantityOnHand" INTEGER NOT NULL DEFAULT 0,
+    "minStock" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "Product_tenantId_sku_key" ON "Product"("tenantId", "sku");
+
+CREATE TABLE IF NOT EXISTS "StockMovement" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "type" "StockMovementType" NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "note" TEXT,
+    "balanceAfter" INTEGER NOT NULL,
+    "userId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "StockMovement_pkey" PRIMARY KEY ("id")
+);
+
+CREATE TABLE IF NOT EXISTS "PasswordReset" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "tokenHash" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "usedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "PasswordReset_pkey" PRIMARY KEY ("id")
+);
+
+CREATE TABLE IF NOT EXISTS "ReportSnapshot" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "generatedBy" TEXT NOT NULL,
+    "reportType" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "payload" JSONB NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "ReportSnapshot_pkey" PRIMARY KEY ("id")
+);
+
+CREATE TABLE IF NOT EXISTS "ReportSchedule" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "createdBy" TEXT NOT NULL,
+    "reportType" TEXT NOT NULL,
+    "cronExpression" TEXT NOT NULL DEFAULT '0 8 * * 1',
+    "emailTo" TEXT NOT NULL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    CONSTRAINT "ReportSchedule_pkey" PRIMARY KEY ("id")
+);
+
+
+ALTER TABLE "Category" DROP CONSTRAINT IF EXISTS "Category_tenantId_fkey";
+ALTER TABLE "Category" ADD CONSTRAINT "Category_tenantId_fkey"
+  FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE "Supplier" DROP CONSTRAINT IF EXISTS "Supplier_tenantId_fkey";
+ALTER TABLE "Supplier" ADD CONSTRAINT "Supplier_tenantId_fkey"
+  FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE "Product" DROP CONSTRAINT IF EXISTS "Product_tenantId_fkey";
+ALTER TABLE "Product" ADD CONSTRAINT "Product_tenantId_fkey"
+  FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE "Product" DROP CONSTRAINT IF EXISTS "Product_categoryId_fkey";
+ALTER TABLE "Product" ADD CONSTRAINT "Product_categoryId_fkey"
+  FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+ALTER TABLE "Product" DROP CONSTRAINT IF EXISTS "Product_supplierId_fkey";
+ALTER TABLE "Product" ADD CONSTRAINT "Product_supplierId_fkey"
+  FOREIGN KEY ("supplierId") REFERENCES "Supplier"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+
+ALTER TABLE "StockMovement" DROP CONSTRAINT IF EXISTS "StockMovement_tenantId_fkey";
+ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_tenantId_fkey"
+  FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE "StockMovement" DROP CONSTRAINT IF EXISTS "StockMovement_productId_fkey";
+ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_productId_fkey"
+  FOREIGN KEY ("productId") REFERENCES "Product"("id") ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE "StockMovement" DROP CONSTRAINT IF EXISTS "StockMovement_userId_fkey";
+ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_userId_fkey"
+  FOREIGN KEY ("userId") REFERENCES "User"("id") ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE "PasswordReset" DROP CONSTRAINT IF EXISTS "PasswordReset_userId_fkey";
+ALTER TABLE "PasswordReset" ADD CONSTRAINT "PasswordReset_userId_fkey"
+  FOREIGN KEY ("userId") REFERENCES "User"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE "ReportSnapshot" DROP CONSTRAINT IF EXISTS "ReportSnapshot_tenantId_fkey";
+ALTER TABLE "ReportSnapshot" ADD CONSTRAINT "ReportSnapshot_tenantId_fkey"
+  FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE "ReportSnapshot" DROP CONSTRAINT IF EXISTS "ReportSnapshot_generatedBy_fkey";
+ALTER TABLE "ReportSnapshot" ADD CONSTRAINT "ReportSnapshot_generatedBy_fkey"
+  FOREIGN KEY ("generatedBy") REFERENCES "User"("id") ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE "ReportSchedule" DROP CONSTRAINT IF EXISTS "ReportSchedule_tenantId_fkey";
+ALTER TABLE "ReportSchedule" ADD CONSTRAINT "ReportSchedule_tenantId_fkey"
+  FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE "ReportSchedule" DROP CONSTRAINT IF EXISTS "ReportSchedule_createdBy_fkey";
+ALTER TABLE "ReportSchedule" ADD CONSTRAINT "ReportSchedule_createdBy_fkey"
+  FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+CREATE INDEX IF NOT EXISTS "StockMovement_productId_idx"          ON "StockMovement"("productId");
+CREATE INDEX IF NOT EXISTS "StockMovement_tenantId_createdAt_idx" ON "StockMovement"("tenantId", "createdAt");
+CREATE INDEX IF NOT EXISTS "PasswordReset_tokenHash_idx"          ON "PasswordReset"("tokenHash");
+CREATE INDEX IF NOT EXISTS "ReportSnapshot_tenantId_idx"          ON "ReportSnapshot"("tenantId");
+CREATE INDEX IF NOT EXISTS "ReportSchedule_tenantId_idx"          ON "ReportSchedule"("tenantId");
+
+COMMIT;
+
+
+-- === 20260422000000_create_refresh_session.sql ===
+-- Migration: 20260422000000_create_refresh_session
+-- Description: Create RefreshSession table for JWT refresh-token rotation with
+--              family-based revocation support.
+
+BEGIN;
+
+CREATE TABLE IF NOT EXISTS "RefreshSession" (
+  "id" TEXT NOT NULL,
+  "userId" TEXT NOT NULL,
+  "tokenHash" TEXT NOT NULL,
+  "familyId" TEXT NOT NULL,
+  "expiresAt" TIMESTAMP(3) NOT NULL,
+  "replacedBySessionId" TEXT,
+  "revokedAt" TIMESTAMP(3),
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "userAgent" TEXT,
+  "ip" TEXT,
+  CONSTRAINT "RefreshSession_pkey" PRIMARY KEY ("id")
+);
+
+CREATE INDEX IF NOT EXISTS "RefreshSession_tokenHash_idx" ON "RefreshSession"("tokenHash");
+CREATE INDEX IF NOT EXISTS "RefreshSession_userId_idx"    ON "RefreshSession"("userId");
+CREATE INDEX IF NOT EXISTS "RefreshSession_familyId_idx"  ON "RefreshSession"("familyId");
+
+ALTER TABLE "RefreshSession" DROP CONSTRAINT IF EXISTS "RefreshSession_userId_fkey";
+ALTER TABLE "RefreshSession" ADD CONSTRAINT "RefreshSession_userId_fkey"
+  FOREIGN KEY ("userId") REFERENCES "User"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+COMMIT;
 

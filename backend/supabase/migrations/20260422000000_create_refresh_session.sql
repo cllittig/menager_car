@@ -1,4 +1,8 @@
--- Refresh sessions (rotação + detecção de reuso). Executar no SQL Editor do Supabase ou via pipeline de migração.
+-- Migration: 20260422000000_create_refresh_session
+-- Description: Create RefreshSession table for JWT refresh-token rotation with
+--              family-based revocation support.
+
+BEGIN;
 
 CREATE TABLE IF NOT EXISTS "RefreshSession" (
   "id" TEXT NOT NULL,
@@ -15,9 +19,11 @@ CREATE TABLE IF NOT EXISTS "RefreshSession" (
 );
 
 CREATE INDEX IF NOT EXISTS "RefreshSession_tokenHash_idx" ON "RefreshSession"("tokenHash");
-CREATE INDEX IF NOT EXISTS "RefreshSession_userId_idx" ON "RefreshSession"("userId");
-CREATE INDEX IF NOT EXISTS "RefreshSession_familyId_idx" ON "RefreshSession"("familyId");
+CREATE INDEX IF NOT EXISTS "RefreshSession_userId_idx"    ON "RefreshSession"("userId");
+CREATE INDEX IF NOT EXISTS "RefreshSession_familyId_idx"  ON "RefreshSession"("familyId");
 
 ALTER TABLE "RefreshSession" DROP CONSTRAINT IF EXISTS "RefreshSession_userId_fkey";
 ALTER TABLE "RefreshSession" ADD CONSTRAINT "RefreshSession_userId_fkey"
   FOREIGN KEY ("userId") REFERENCES "User"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+COMMIT;

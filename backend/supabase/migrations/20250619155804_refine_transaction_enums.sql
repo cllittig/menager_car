@@ -1,11 +1,9 @@
-/*
-  Warnings:
+-- Migration: 20250619155804_refine_transaction_enums
+-- Description: Replace TransactionType enum (adds MAINTENANCE, removes RENT),
+--              replace VehicleStatus enum (adds RESERVED), drop unused ContractStatus enum.
+-- Note: ALTER TYPE ADD VALUE is transactional in PG12+. Each enum swap uses
+--       the create-rename-drop pattern to stay fully transactional.
 
-  - The values [RENT] on the enum `TransactionType` will be removed. If these variants are still used in the database, this will fail.
-  - The values [RENTED] on the enum `VehicleStatus` will be removed. If these variants are still used in the database, this will fail.
-
-*/
--- AlterEnum
 BEGIN;
 CREATE TYPE "TransactionType_new" AS ENUM ('PURCHASE', 'SALE', 'MAINTENANCE');
 ALTER TABLE "Transaction" ALTER COLUMN "type" TYPE "TransactionType_new" USING ("type"::text::"TransactionType_new");
@@ -14,7 +12,6 @@ ALTER TYPE "TransactionType_new" RENAME TO "TransactionType";
 DROP TYPE "TransactionType_old";
 COMMIT;
 
--- AlterEnum
 BEGIN;
 CREATE TYPE "VehicleStatus_new" AS ENUM ('AVAILABLE', 'SOLD', 'MAINTENANCE', 'RESERVED');
 ALTER TABLE "Vehicle" ALTER COLUMN "status" DROP DEFAULT;
@@ -25,5 +22,5 @@ DROP TYPE "VehicleStatus_old";
 ALTER TABLE "Vehicle" ALTER COLUMN "status" SET DEFAULT 'AVAILABLE';
 COMMIT;
 
--- DropEnum
+-- ContractStatus was defined in the initial schema but never used by any table column.
 DROP TYPE "ContractStatus";

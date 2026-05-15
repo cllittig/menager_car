@@ -1,4 +1,13 @@
--- MIG-06: substituir bootstrap por policies transicionais (jwt_tenant_id IS NULL OR tenant match)
+-- Migration: 20260515100006_security_rls_tenant_policies
+-- Description: Replace bootstrap allow-all policies with tenant-aware RLS policies.
+--              Tables with a direct tenantId column get standard per-operation policies.
+--              Tables without tenantId (Installment, Maintenance, ServiceOrder, AuditLog)
+--              use EXISTS sub-queries through their parent FK chain.
+--              Phase-2 policies allow NULL jwt_tenant_id (service-role bypass).
+
+BEGIN;
+
+-- Standard tenant-aware policies for tables with direct tenantId column.
 DO $$
 DECLARE t text;
 BEGIN
@@ -38,7 +47,8 @@ BEGIN
   END LOOP;
 END $$;
 
--- Tenant: apenas SELECT
+
+-- Tenant table: allow read for matching tenant only.
 DO $$
 BEGIN
   IF EXISTS (
@@ -52,7 +62,8 @@ BEGIN
   END IF;
 END $$;
 
--- Installment: via Transaction
+
+-- Installment: tenant check via parent Transaction.
 DO $$
 BEGIN
   IF EXISTS (
@@ -112,7 +123,8 @@ BEGIN
   END IF;
 END $$;
 
--- Maintenance: via Vehicle
+
+-- Maintenance: tenant check via parent Vehicle.
 DO $$
 BEGIN
   IF EXISTS (
@@ -172,7 +184,8 @@ BEGIN
   END IF;
 END $$;
 
--- ServiceOrder: via Maintenance -> Vehicle
+
+-- ServiceOrder: tenant check via Maintenance → Vehicle chain.
 DO $$
 BEGIN
   IF EXISTS (
@@ -237,7 +250,8 @@ BEGIN
   END IF;
 END $$;
 
--- AuditLog: via User
+
+-- AuditLog: tenant check via parent User.
 DO $$
 BEGIN
   IF EXISTS (
@@ -296,3 +310,5 @@ BEGIN
       );
   END IF;
 END $$;
+
+COMMIT;

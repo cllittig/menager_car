@@ -1,5 +1,12 @@
--- MIG-07: tenantId em satélites + FK Tenant + triggers de consistência (sem DROP de dados)
--- Maintenance
+-- Migration: 20260515100007_security_tenant_sync_triggers
+-- Description: Add tenantId column (backfilled from parent FK) to Maintenance,
+--              ServiceOrder, Installment, and AuditLog. Create BEFORE INSERT/UPDATE
+--              triggers that enforce tenantId consistency with each table's parent.
+-- Note: Each block raises EXCEPTION and aborts if orphan rows are found before backfill.
+
+BEGIN;
+
+-- Maintenance.tenantId — derived from Vehicle.tenantId
 DO $$
 BEGIN
   IF EXISTS (
@@ -44,7 +51,8 @@ BEGIN
   END IF;
 END $$;
 
--- ServiceOrder
+
+-- ServiceOrder.tenantId — derived from Maintenance.tenantId
 DO $$
 BEGIN
   IF EXISTS (
@@ -89,7 +97,8 @@ BEGIN
   END IF;
 END $$;
 
--- Installment
+
+-- Installment.tenantId — derived from Transaction.tenantId
 DO $$
 BEGIN
   IF EXISTS (
@@ -134,7 +143,8 @@ BEGIN
   END IF;
 END $$;
 
--- AuditLog
+
+-- AuditLog.tenantId — derived from User.tenantId
 DO $$
 BEGIN
   IF EXISTS (
@@ -178,3 +188,5 @@ BEGIN
     FOR EACH ROW EXECUTE FUNCTION public.trg_auditlog_tenant_sync();
   END IF;
 END $$;
+
+COMMIT;
